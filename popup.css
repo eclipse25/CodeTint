@@ -1,0 +1,143 @@
+:root {
+  /* Dark theme (default) */
+  --bg: transparent;
+  --panel: #111827; /* gray-900 */
+  --text: #e5e7eb; /* gray-200 */
+  --muted: #9ca3af; /* gray-400 */
+  --accent: #6366f1; /* indigo-500 */
+  --border: #1f2937; /* gray-800 */
+  --shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    /* Light theme overrides */
+    --bg: transparent;
+    --panel: #ffffff;
+    --text: #0f172a; /* slate-900 */
+    --muted: #475569; /* slate-600 */
+    --accent: #4f46e5; /* indigo-600 */
+    --border: #e5e7eb; /* gray-200 */
+    --shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+  }
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-width: 300px;
+  max-width: 360px;
+  background: var(--bg);
+  color: var(--text);
+  font: 14px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Inter, "Noto Sans",
+    Arial, sans-serif;
+}
+
+/* Card container */
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  padding: 12px;
+  box-shadow: var(--shadow);
+}
+
+/* Section title */
+h3 {
+  margin: 0 0 10px;
+  font-size: 16px;
+  letter-spacing: 0.2px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Gradient text badge */
+.badge {
+  background: linear-gradient(135deg, #8b5cf6, #ec4899);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-weight: 700;
+}
+
+label {
+  display: block;
+  margin: 10px 0 6px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* Dropdown */
+select {
+  width: 100%;
+  appearance: none;
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+/* Generic row (label + action button/link) */
+.row-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 8px 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* Grid row for swatch + preview text */
+.row {
+  display: grid;
+  grid-template-columns: 36px 1fr;
+  gap: 10px;
+  align-items: center;
+}
+
+/* Color preview box */
+.swatch {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+/* Monospace preview text */
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono",
+    monospace;
+  font-size: 12px;
+  background: rgba(0, 0, 0, 0.06);
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  word-break: break-all;
+}
+
+/* Link-style button (used for Copy/Change) */
+.link {
+  color: #0161a7;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 0;
+  text-decoration: none;
+}
+
+.link:hover {
+  color: #0d246a;
+}

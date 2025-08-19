@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>CodeTint</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <div class="card">
+      <h3><span class="badge">CodeTint</span> — Format</h3>
+      <label for="profile">Output format</label>
+      <select id="profile">
+        <option value="css-hex">CSS Hex → #RRGGBB</option>
+        <option value="css-rgba">CSS RGBA → rgba(r, g, b, a)</option>
+        <option value="tailwind">Tailwind → text-[color:#RRGGBB]</option>
+        <option value="react-native">
+          React Native → '#RRGGBB' / rgba(r,g,b,a)
+        </option>
+        <option value="ios-swiftui">
+          iOS SwiftUI → Color(red:r, green:g, blue:b, opacity:a)
+        </option>
+        <option value="ios-uikit">
+          iOS UIKit → UIColor(red:r, green:g, blue:b, alpha:a)
+        </option>
+        <option value="android-xml">Android XML → #AARRGGBB</option>
+        <option value="flutter">Flutter → const Color(0xAARRGGBB)</option>
+      </select>
+
+      <div class="row-label">
+        <span>Last copied preview</span>
+        <button id="copyPreview" class="link">Copy</button>
+      </div>
+
+      <div class="row">
+        <div id="swatch" class="swatch" title="Last color"></div>
+        <div id="preview" class="mono">—</div>
+      </div>
+
+      <div class="row-label">
+        <span>Shortcuts</span>
+        <button id="openShortcuts" class="link">Change</button>
+      </div>
+    </div>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
