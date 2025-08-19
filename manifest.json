@@ -15,7 +15,14 @@
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
-  "permissions": ["storage", "clipboardWrite", "scripting", "activeTab"],
+  "permissions": [
+    "storage",
+    "offscreen",
+    "clipboardRead",
+    "clipboardWrite",
+    "scripting",
+    "activeTab"
+  ],
   "host_permissions": ["<all_urls>"],
   "background": { "service_worker": "sw.js", "type": "module" },
   "commands": {
