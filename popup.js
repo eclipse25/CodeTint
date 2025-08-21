@@ -31,13 +31,45 @@ chrome.storage.onChanged.addListener((changes, area) => {
     renderPreview(sel.value, changes.last.newValue);
 });
 
-copyPreviewBtn.addEventListener("click", async () => {
+// --- Shared copy logic (used by button & preview) ---
+async function copyCurrentPreview() {
   const { last } = await chrome.storage.local.get("last");
   if (!last) return;
-  await navigator.clipboard.writeText(formatByProfile(sel.value, last));
-  copyPreviewBtn.textContent = "Copied!";
-  setTimeout(() => (copyPreviewBtn.textContent = "Copy"), 800);
-});
+  const text = formatByProfile(sel.value, last);
+  await navigator.clipboard.writeText(text);
+
+  // Button feedback (if present)
+  if (copyPreviewBtn) {
+    copyPreviewBtn.textContent = "Copied!";
+    setTimeout(() => (copyPreviewBtn.textContent = "Copy"), 800);
+  }
+
+  // Optional visual hint on preview
+  if (preview) {
+    preview.classList.add("copied");
+    setTimeout(() => preview.classList.remove("copied"), 200);
+  }
+}
+
+// Button → copy
+copyPreviewBtn.addEventListener("click", copyCurrentPreview);
+
+// Preview → click / keyboard to copy
+if (preview) {
+  preview.addEventListener("click", copyCurrentPreview);
+  preview.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      copyCurrentPreview();
+    }
+  });
+  // a11y / affordance
+  preview.setAttribute("role", "button");
+  preview.setAttribute("tabindex", "0");
+  preview.setAttribute("title", "Click to copy");
+  preview.setAttribute("aria-label", "Copy color code");
+  preview.classList.add("copyable");
+}
 
 openShortcuts.addEventListener("click", () =>
   chrome.tabs.create({ url: "chrome://extensions/shortcuts" })

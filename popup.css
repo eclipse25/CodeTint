@@ -287,3 +287,7 @@ kbd.shortcut-keys {
   border-radius: 6px;
   background: rgba(0, 0, 0, 0.04);
 }
+
+.mono.copyable {
+  cursor: pointer;
+}
