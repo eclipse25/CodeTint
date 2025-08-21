@@ -283,13 +283,21 @@ async function hydrateShortcuts() {
   try {
     const commands = await chrome.commands.getAll();
 
-    // Hide internal commands
-    const visible = commands.filter((c) => !/^_execute_/.test(c.name));
+    // Hide internal commands EXCEPT "_execute_action" (팝업 열기 단축키는 노출)
+    const visible = commands.filter(
+      (c) => c.name === "_execute_action" || !/^_execute_/.test(c.name)
+    );
 
     // Desired order (keys must match manifest "commands" names)
     const WEIGHT = {
-      "pick-screen-color": 0,
-      "convert-color-format": 1,
+      _execute_action: 0, // Open popup
+      "pick-screen-color": 1, // Alt+C
+      "convert-color-format": 2, // Alt+D
+    };
+
+    // Optional label overrides
+    const LABELS = {
+      _execute_action: "Open popup",
     };
 
     // Sort by weight, then by label (alphabetically)
@@ -297,14 +305,14 @@ async function hydrateShortcuts() {
       const wa = WEIGHT[a.name] ?? 99;
       const wb = WEIGHT[b.name] ?? 99;
       if (wa !== wb) return wa - wb;
-      const la = a.description || a.name || "";
-      const lb = b.description || b.name || "";
+      const la = LABELS[a.name] || a.description || a.name || "";
+      const lb = LABELS[b.name] || b.description || b.name || "";
       return la.localeCompare(lb);
     });
 
     const html = sorted
       .map((c) => {
-        const label = c.description || c.name;
+        const label = LABELS[c.name] || c.description || c.name;
         const keys = c.shortcut && c.shortcut.trim() ? c.shortcut : "Not set";
         return `
         <div class="shortcut-item">
