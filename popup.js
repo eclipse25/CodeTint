@@ -9,16 +9,22 @@ const openShortcuts = document.getElementById("openShortcuts");
 (async function init() {
   const { profile = "flutter" } = await chrome.storage.local.get("profile");
   sel.value = profile;
+
   const { last } = await chrome.storage.local.get("last");
-  renderPreview(sel.value, last || sample("#3498DB"));
+  if (last) renderPreview(sel.value, last);
+  else renderEmpty();
+
   setTriggerLabelToCurrent();
   await renderHistory();
 })();
 
 sel.addEventListener("change", async () => {
   await chrome.storage.local.set({ profile: sel.value });
+
   const { last } = await chrome.storage.local.get("last");
-  renderPreview(sel.value, last || sample("#3498DB"));
+  if (last) renderPreview(sel.value, last);
+  else renderEmpty();
+
   setTriggerLabelToCurrent();
   await renderHistory();
 });
@@ -31,9 +37,12 @@ function setTriggerLabelToCurrent() {
 }
 
 chrome.storage.onChanged.addListener((changes, area) => {
-  if (area === "local" && changes.last)
-    renderPreview(sel.value, changes.last.newValue);
-  if (area === "local" && changes.history) renderHistory();
+  if (area !== "local") return;
+  if (changes.last) {
+    const nv = changes.last.newValue;
+    nv ? renderPreview(sel.value, nv) : renderEmpty();
+  }
+  if (changes.history) renderHistory();
 });
 
 const clearHistoryBtn = document.getElementById("clearHistory");
@@ -79,19 +88,45 @@ if (preview) {
   // a11y / affordance
   preview.setAttribute("role", "button");
   preview.setAttribute("tabindex", "0");
-  preview.setAttribute("title", "Click to copy");
   preview.setAttribute("aria-label", "Copy color code");
-  preview.classList.add("copyable");
+}
+
+// Enable/disable copy UI together
+function setCopyEnabled(enabled) {
+  copyPreviewBtn.disabled = !enabled;
+  copyPreviewBtn.setAttribute("aria-disabled", String(!enabled));
+  preview.classList.toggle("copyable", enabled);
+  preview.setAttribute("aria-disabled", String(!enabled));
+}
+
+// Render “no last color” state
+function renderEmpty() {
+  preview.textContent = "—";
+  preview.title = "No color yet";
+  swatch.style.background = "transparent";
+  swatch.classList.add("is-empty");
+  swatch.title = "No color yet";
+  setCopyEnabled(false);
+}
+
+// Render normal preview
+function renderPreview(profile, color) {
+  preview.textContent = formatByProfile(profile, color);
+  preview.title = preview.textContent;
+  swatch.style.background = color?.hex || "transparent";
+  swatch.classList.remove("is-empty");
+  swatch.title = color?.hex || "";
+  setCopyEnabled(true);
 }
 
 openShortcuts.addEventListener("click", () =>
   chrome.tabs.create({ url: "chrome://extensions/shortcuts" })
 );
 
-function renderPreview(profile, color) {
-  preview.textContent = formatByProfile(profile, color);
-  swatch.style.background = color?.hex || "#000";
-}
+// function renderPreview(profile, color) {
+//   preview.textContent = formatByProfile(profile, color);
+//   swatch.style.background = color?.hex || "#000";
+// }
 
 // dropdown
 (function initProfileDropdown() {
@@ -333,13 +368,21 @@ async function renderHistory() {
 
     btn.addEventListener("click", async () => {
       const text = formatByProfile(sel.value, color);
+
+      // instant visual feedback
+      btn.dataset.copied = "1";
+
+      // paint flush (ensure the ring shows up before clipboard work)
+      await new Promise(requestAnimationFrame);
+
       try {
+        // do the async write
         await navigator.clipboard.writeText(text);
-        // brief visual feedback
-        btn.dataset.copied = "1";
-        setTimeout(() => btn.removeAttribute("data-copied"), 800);
       } catch (e) {
         console.error("Copy failed", e);
+      } finally {
+        // remove feedback after a short delay
+        setTimeout(() => btn.removeAttribute("data-copied"), 600);
       }
     });
 

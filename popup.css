@@ -136,9 +136,12 @@ label + .select-group {
   left: 0;
   right: 0;
   padding-bottom: 10px;
+  z-index: 1000;
 }
 
 .select-panel {
+  position: relative;
+  z-index: 1;
   overflow: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -298,15 +301,16 @@ kbd.shortcut-keys {
   grid-template-columns: repeat(8, minmax(0, 1fr));
   gap: 8px;
 }
-
 .chips .empty {
   grid-column: 1 / -1;
   color: var(--muted, #6b7280);
   font-size: 12px;
 }
 
+/* Chip */
 .chip {
   position: relative;
+  overflow: visible; /* ring/tooltip outside */
   width: 100%;
   aspect-ratio: 1 / 1;
   box-sizing: border-box;
@@ -314,13 +318,35 @@ kbd.shortcut-keys {
   border-radius: 8px;
   background: #000;
   cursor: pointer;
+  transition: transform 80ms ease; /* no box-shadow anim needed */
+  will-change: transform;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
 }
 .chip:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
+.chip:active {
+  transform: scale(0.96);
+}
 
-/* Hover tooltip shows hex; also shown briefly on copy */
+/* Copy-feedback ring (overlay) */
+.chip::before {
+  content: "";
+  position: absolute;
+  inset: -2px; /* outside border */
+  border-radius: 10px;
+  border: 2px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  opacity: 0;
+  transition: opacity 120ms ease;
+  pointer-events: none;
+}
+.chip[data-copied="1"]::before {
+  opacity: 1;
+}
+
+/* Tooltip (hex) */
 .chip::after {
   content: attr(data-hex);
   position: absolute;
@@ -343,6 +369,20 @@ kbd.shortcut-keys {
   opacity: 1;
 }
 
-.chip[data-copied="1"] {
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 40%, transparent);
+/* Empty swatch hint */
+.swatch.is-empty {
+  border-style: dashed;
+}
+
+/* Disabled "link" button look */
+.link[disabled],
+[aria-disabled="true"].link {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* When preview is disabled, don't show pointer hand */
+.mono[aria-disabled="true"] {
+  cursor: default;
+  opacity: 0.85;
 }
