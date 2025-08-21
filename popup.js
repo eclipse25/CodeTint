@@ -12,6 +12,7 @@ const openShortcuts = document.getElementById("openShortcuts");
   const { last } = await chrome.storage.local.get("last");
   renderPreview(sel.value, last || sample("#3498DB"));
   setTriggerLabelToCurrent();
+  await renderHistory();
 })();
 
 sel.addEventListener("change", async () => {
@@ -19,6 +20,7 @@ sel.addEventListener("change", async () => {
   const { last } = await chrome.storage.local.get("last");
   renderPreview(sel.value, last || sample("#3498DB"));
   setTriggerLabelToCurrent();
+  await renderHistory();
 });
 
 function setTriggerLabelToCurrent() {
@@ -31,7 +33,16 @@ function setTriggerLabelToCurrent() {
 chrome.storage.onChanged.addListener((changes, area) => {
   if (area === "local" && changes.last)
     renderPreview(sel.value, changes.last.newValue);
+  if (area === "local" && changes.history) renderHistory();
 });
+
+const clearHistoryBtn = document.getElementById("clearHistory");
+if (clearHistoryBtn) {
+  clearHistoryBtn.addEventListener("click", async () => {
+    await chrome.storage.local.set({ history: [] });
+    await renderHistory();
+  });
+}
 
 // --- Shared copy logic (used by button & preview) ---
 async function copyCurrentPreview() {
@@ -290,4 +301,48 @@ function wireOpenShortcuts() {
       window.open("chrome://extensions/shortcuts", "_blank");
     }
   });
+}
+
+async function renderHistory() {
+  const wrap = document.getElementById("history");
+  if (!wrap) return;
+
+  const { history = [] } = await chrome.storage.local.get("history");
+  wrap.innerHTML = "";
+
+  if (!history.length) {
+    const empty = document.createElement("div");
+    empty.className = "empty";
+    empty.textContent = "No recent colors";
+    wrap.appendChild(empty);
+    return;
+  }
+
+  // Build chips
+  for (const c of history) {
+    // history에 {hex,r,g,b,a}가 이미 저장됨. 혹시 몰라 hex만 있을 경우 보완
+    const color = typeof c?.r === "number" ? c : sample(c?.hex || "#000000");
+
+    const btn = document.createElement("button");
+    btn.className = "chip";
+    btn.type = "button";
+    btn.title = `Copy ${formatByProfile(sel.value, color)}`;
+    btn.setAttribute("aria-label", `Copy ${color.hex}`);
+    btn.dataset.hex = color.hex;
+    btn.style.background = color.hex || "#000";
+
+    btn.addEventListener("click", async () => {
+      const text = formatByProfile(sel.value, color);
+      try {
+        await navigator.clipboard.writeText(text);
+        // brief visual feedback
+        btn.dataset.copied = "1";
+        setTimeout(() => btn.removeAttribute("data-copied"), 800);
+      } catch (e) {
+        console.error("Copy failed", e);
+      }
+    });
+
+    wrap.appendChild(btn);
+  }
 }
