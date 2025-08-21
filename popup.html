@@ -7,24 +7,81 @@
   </head>
   <body>
     <div class="card">
-      <h3><span class="badge">CodeTint</span> — Format</h3>
+      <h3><span class="badge">CodeTint</span> — Setting</h3>
       <label for="profile">Output format</label>
-      <select id="profile">
-        <option value="css-hex">CSS Hex → #RRGGBB</option>
-        <option value="css-rgba">CSS RGBA → rgba(r, g, b, a)</option>
-        <option value="tailwind">Tailwind → text-[color:#RRGGBB]</option>
-        <option value="react-native">
-          React Native → '#RRGGBB' / rgba(r,g,b,a)
+      <select id="profile" class="sr-only" hidden aria-hidden="true">
+        <option value="css-hex" data-desc="#RRGGBB" title="#RRGGBB">
+          CSS Hex
         </option>
-        <option value="ios-swiftui">
-          iOS SwiftUI → Color(red:r, green:g, blue:b, opacity:a)
+        <option
+          value="css-rgba"
+          data-desc="rgba(r, g, b, a)"
+          title="rgba(r, g, b, a)"
+        >
+          CSS RGBA
         </option>
-        <option value="ios-uikit">
-          iOS UIKit → UIColor(red:r, green:g, blue:b, alpha:a)
+        <option
+          value="tailwind"
+          data-desc="text-[color:#RRGGBB]"
+          title="text-[color:#RRGGBB]"
+        >
+          Tailwind
         </option>
-        <option value="android-xml">Android XML → #AARRGGBB</option>
-        <option value="flutter">Flutter → const Color(0xAARRGGBB)</option>
+        <option
+          value="react-native"
+          data-desc="'#RRGGBB' / rgba(r,g,b,a)"
+          title="'#RRGGBB' / rgba(r,g,b,a)"
+        >
+          React Native
+        </option>
+        <option
+          value="ios-swiftui"
+          data-desc="Color(red:r, green:g, blue:b, opacity:a)"
+          title="Color(red:r, green:g, blue:b, opacity:a)"
+        >
+          SwiftUI
+        </option>
+        <option
+          value="ios-uikit"
+          data-desc="UIColor(red:r, green:g, blue:b, alpha:a)"
+          title="UIColor(red:r, green:g, blue:b, alpha:a)"
+        >
+          UIKit
+        </option>
+        <option value="android-xml" data-desc="#AARRGGBB" title="#AARRGGBB">
+          Android XML
+        </option>
+        <option
+          value="flutter"
+          data-desc="const Color(0xAARRGGBB)"
+          title="const Color(0xAARRGGBB)"
+        >
+          Flutter
+        </option>
       </select>
+
+      <div class="select-group" data-source="#profile">
+        <button
+          id="profile_trigger"
+          class="select-trigger"
+          type="button"
+          aria-haspopup="listbox"
+          aria-expanded="false"
+          aria-controls="profile_listbox"
+        >
+          <span class="select-value">—</span>
+          <span class="caret" aria-hidden="true"></span>
+        </button>
+
+        <div class="select-panel-container">
+          <ul
+            id="profile_listbox"
+            class="select-panel"
+            role="listbox"
+            tabindex="-1"
+          ></ul>
+        </div>
+      </div>
 
       <div class="row-label">
         <span>Last copied preview</span>
@@ -40,6 +97,12 @@
         <span>Shortcuts</span>
         <button id="openShortcuts" class="link">Change</button>
       </div>
+
+      <div
+        id="shortcutsContainer"
+        class="shortcuts-list"
+        aria-live="polite"
+      ></div>
     </div>
 
     <script src="popup.js"></script>
