@@ -1,158 +1,124 @@
-// content.js
+let formatByProfile, sample, clamp255, makeColor;
 
-chrome.runtime.onMessage.addListener(async (msg) => {
-  if (msg?.action === "debug-shortcut-log") {
-    const { cmd, ts } = msg.payload || {};
-    console.log(
-      `[CodeTint] ${cmd} @ ${new Date(ts || Date.now()).toLocaleString()}`
-    );
+const ColorLibReady = import(chrome.runtime.getURL("lib/color.js")).then(
+  (m) => {
+    ({ formatByProfile, sample, clamp255, makeColor } = m);
   }
+);
 
-  // Alt+C → Start EyeDropper
-  if (msg?.action === "start-eyedropper") {
-    if (!window.EyeDropper) {
-      console.debug("[CodeTint] EyeDropper not supported on this page.");
-      return;
+if (window === window.top) {
+  chrome.runtime.onMessage.addListener(async (msg) => {
+    await ColorLibReady;
+
+    if (msg?.action === "debug-shortcut-log") {
+      const { cmd, ts } = msg.payload || {};
+      console.log(
+        `[CodeTint] ${cmd} @ ${new Date(ts || Date.now()).toLocaleString()}`
+      );
     }
-    try {
-      const { sRGBHex } = await new EyeDropper().open();
-      const color = sample(sRGBHex);
 
-      // Load the currently selected profile
-      const { profile = "flutter" } = await chrome.storage.local.get("profile");
-      const text = formatByProfile(profile, color);
-
-      // copy
-      await navigator.clipboard.writeText(text);
-      console.log(`[CodeTint] Picked ${sRGBHex} → Copied: ${text}`);
-      showToast(`Copied ${text}`, sRGBHex);
-
-      // Save last color for popup preview update (detected by popup.js)
-      await chrome.storage.local.set({ last: color });
-    } catch (e) {
-      const msg = e && e.message ? e.message : String(e);
-
-      // User canceled
-      if (/abort|canceled?/i.test(msg)) {
-        showToast("Canceled", "#000");
+    // Alt+C → Start EyeDropper
+    if (msg?.action === "start-eyedropper") {
+      if (!window.EyeDropper) {
+        console.debug("[CodeTint] EyeDropper not supported on this page.");
         return;
       }
-
-      // User gesture required → retry on next click
-      if (/activation|gesture|user.?input|NotAllowedError/i.test(msg)) {
-        showToast("Click anywhere to start picker", "#000");
-
-        const once = async () => {
-          document.removeEventListener("pointerdown", once, true);
-          try {
-            const { sRGBHex } = await new EyeDropper().open();
-            const color = sample(sRGBHex);
-            const { profile = "flutter" } = await chrome.storage.local.get(
-              "profile"
-            );
-            const text = formatByProfile(profile, color);
-            await navigator.clipboard.writeText(text);
-            showToast(`Copied ${text}`, sRGBHex);
-            await chrome.storage.local.set({ last: color });
-          } catch (err) {
-            const m2 = String(err?.message || err);
-            if (/abort|canceled?/i.test(m2)) showToast("Canceled", "#000");
-            else {
-              console.debug("[CodeTint] Eyedropper error:", err);
-              showToast("Eyedropper error", "#000");
-            }
-          }
-        };
-
-        document.addEventListener("pointerdown", once, true);
-        return;
-      }
-
-      // Other errors
-      console.debug("[CodeTint] Eyedropper error:", e);
-      showToast(`Error: ${e?.name || e?.message || "Unknown"}`, "#000");
-    }
-  }
-
-  // Alt+D → convert clipboard color format
-  if (msg?.action === "convert-color-format") {
-    try {
-      // Use the text provided by the Service Worker (if empty, try a last-resort direct clipboard read)
-      let raw = (msg.text || "").trim();
-      if (!raw) {
-        try {
-          raw = (await navigator.clipboard.readText())?.trim() || "";
-        } catch {}
-      }
-
-      if (!raw) {
-        showToast("Clipboard is empty", "#000");
-        return;
-      }
-
-      const color = parseClipboardColor(raw);
-      if (!color) {
-        showToast("No color found in clipboard", "#000");
-        return;
-      }
-
-      const { profile = "flutter" } = await chrome.storage.local.get("profile");
-      const out = formatByProfile(profile, color);
-
       try {
-        await navigator.clipboard.writeText(out);
-        showToast(`Converted: ${out}`, color.hex || "#000");
-      } catch {
-        showToast("Clipboard write failed", color.hex || "#000");
+        const { sRGBHex } = await new EyeDropper().open();
+        const color = sample(sRGBHex);
+
+        const { profile = "flutter" } = await chrome.storage.local.get(
+          "profile"
+        );
+        const text = formatByProfile(profile, color);
+
+        await navigator.clipboard.writeText(text);
+        console.log(`[CodeTint] Picked ${sRGBHex} → Copied: ${text}`);
+        showToast(`Copied ${text}`, sRGBHex);
+
+        await chrome.storage.local.set({ last: color });
+      } catch (e) {
+        const msg = e && e.message ? e.message : String(e);
+
+        if (/abort|canceled?/i.test(msg)) {
+          showToast("Canceled", "#000");
+          return;
+        }
+
+        if (/activation|gesture|user.?input|NotAllowedError/i.test(msg)) {
+          showToast("Click anywhere to start picker", "#000");
+
+          const once = async () => {
+            document.removeEventListener("pointerdown", once, true);
+            try {
+              const { sRGBHex } = await new EyeDropper().open();
+              const color = sample(sRGBHex);
+              const { profile = "flutter" } = await chrome.storage.local.get(
+                "profile"
+              );
+              const text = formatByProfile(profile, color);
+              await navigator.clipboard.writeText(text);
+              showToast(`Copied ${text}`, sRGBHex);
+              await chrome.storage.local.set({ last: color });
+            } catch (err) {
+              const m2 = String(err?.message || err);
+              if (/abort|canceled?/i.test(m2)) showToast("Canceled", "#000");
+              else {
+                console.debug("[CodeTint] Eyedropper error:", err);
+                showToast("Eyedropper error", "#000");
+              }
+            }
+          };
+
+          document.addEventListener("pointerdown", once, true);
+          return;
+        }
+
+        console.debug("[CodeTint] Eyedropper error:", e);
+        showToast(`Error: ${e?.name || e?.message || "Unknown"}`, "#000");
       }
-
-      await chrome.storage.local.set({ last: color });
-    } catch (e) {
-      console.warn("[CodeTint] Convert error:", e);
-      showToast(`Error: ${e?.name || e?.message || "Unknown"}`, "#000");
     }
-  }
-});
 
-function formatByProfile(profile, { hex, r, g, b, a } = sample("#3498DB")) {
-  const HEX = (hex || "#000000").replace("#", "").toUpperCase();
-  const AHEX = (a ?? 255).toString(16).padStart(2, "0").toUpperCase();
-  const R1 = (r / 255).toFixed(3);
-  const G1 = (g / 255).toFixed(3);
-  const B1 = (b / 255).toFixed(3);
-  const AF = ((a ?? 255) / 255).toFixed(2);
+    // Alt+D → convert clipboard color format
+    if (msg?.action === "convert-color-format") {
+      try {
+        let raw = (msg.text || "").trim();
+        if (!raw) {
+          try {
+            raw = (await navigator.clipboard.readText())?.trim() || "";
+          } catch {}
+        }
 
-  switch (profile) {
-    case "flutter":
-      return `const Color(0x${AHEX}${HEX})`;
-    case "css-hex":
-      return `#${HEX}`;
-    case "css-rgba":
-      return `rgba(${r}, ${g}, ${b}, ${AF})`;
-    case "react-native":
-      return `'#${HEX}'`;
-    case "ios-swiftui":
-      return `Color(red:${R1}, green:${G1}, blue:${B1}, opacity:${AF})`;
-    case "ios-uikit":
-      return `UIColor(red:${R1}, green:${G1}, blue:${B1}, alpha:${AF})`;
-    case "android-xml":
-      return `#${AHEX}${HEX}`;
-    case "tailwind":
-      return `text-[color:#${HEX}]`;
-    default:
-      return `#${HEX}`;
-  }
-}
+        if (!raw) {
+          showToast("Clipboard is empty", "#000");
+          return;
+        }
 
-function sample(hex) {
-  const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return {
-    hex: hex.toUpperCase(),
-    r: parseInt(m[1], 16),
-    g: parseInt(m[2], 16),
-    b: parseInt(m[3], 16),
-    a: 255,
-  };
+        const color = parseClipboardColor(raw);
+        if (!color) {
+          showToast("No color found in clipboard", "#000");
+          return;
+        }
+
+        const { profile = "flutter" } = await chrome.storage.local.get(
+          "profile"
+        );
+        const out = formatByProfile(profile, color);
+
+        try {
+          await navigator.clipboard.writeText(out);
+          showToast(`Converted: ${out}`, color.hex || "#000");
+        } catch {
+          showToast("Clipboard write failed", color.hex || "#000");
+        }
+
+        await chrome.storage.local.set({ last: color });
+      } catch (e) {
+        console.warn("[CodeTint] Convert error:", e);
+        showToast(`Error: ${e?.name || e?.message || "Unknown"}`, "#000");
+      }
+    }
+  });
 }
 
 // ---- Parse various color string formats → {hex,r,g,b,a} ----
@@ -222,19 +188,6 @@ function fromAARRGGBB(aargb) {
   const G = parseInt(aargb.slice(4, 6), 16);
   const B = parseInt(aargb.slice(6, 8), 16);
   return makeColor(R, G, B, A);
-}
-
-function makeColor(r, g, b, a = 255) {
-  const hex =
-    "#" +
-    [r, g, b]
-      .map((v) => v.toString(16).padStart(2, "0"))
-      .join("")
-      .toUpperCase();
-  return { hex, r, g, b, a };
-}
-function clamp255(n) {
-  return Math.max(0, Math.min(255, n));
 }
 
 // ---------- Toast (bottom-right, dark-mode aware) ----------
