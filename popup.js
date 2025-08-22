@@ -283,7 +283,7 @@ async function hydrateShortcuts() {
   try {
     const commands = await chrome.commands.getAll();
 
-    // Hide internal commands EXCEPT "_execute_action" (팝업 열기 단축키는 노출)
+    // Hide internal commands EXCEPT "_execute_action"
     const visible = commands.filter(
       (c) => c.name === "_execute_action" || !/^_execute_/.test(c.name)
     );
@@ -414,3 +414,59 @@ async function renderHistory() {
     chrome.action.setBadgeText({ text: "" });
   }
 })();
+
+//SPONSOR
+const SPONSOR_URL = "https://github.com/sponsors/eclipse25";
+const BMAC_URL = "https://buymeacoffee.com/eclipse25";
+
+const $ = (q) => document.querySelector(q);
+const cta = $("#support-cta");
+const inline = $("#support-inline");
+
+cta.addEventListener("click", () => {
+  const isOpen = !inline.classList.contains("hidden");
+  if (isOpen) {
+    inline.classList.add("hidden");
+    inline.innerHTML = "";
+    cta.setAttribute("aria-expanded", "false");
+  } else {
+    renderQuestionRow();
+    inline.classList.remove("hidden");
+    cta.setAttribute("aria-expanded", "true");
+  }
+});
+
+inline.addEventListener("click", (e) => {
+  const id = e.target.id;
+  if (id === "dev-yes") return renderActionRow("github");
+  if (id === "dev-no") return renderActionRow("bmac");
+  if (id === "go-sponsor") return openSupport(SPONSOR_URL);
+  if (id === "go-bmac") return openSupport(BMAC_URL);
+});
+
+function renderQuestionRow() {
+  inline.innerHTML = `
+    <span class="label">Are you a developer?</span>
+    <button id="dev-yes" class="primary sm">Yes</button>
+    <button id="dev-no" class="secondary sm">No</button>
+  `;
+}
+
+function renderActionRow(kind) {
+  inline.innerHTML =
+    kind === "github"
+      ? `<button id="go-sponsor" class="primary">Sponsor on GitHub</button>`
+      : `<button id="go-bmac" class="secondary">Buy me a coffee</button>`;
+}
+
+function openSupport(base) {
+  const ver = chrome.runtime.getManifest().version;
+  const qs = new URLSearchParams({
+    utm_source: "codetint",
+    utm_medium: "extension",
+    utm_campaign: "popup",
+    v: ver,
+  }).toString();
+  const url = base + (base.includes("?") ? "&" : "?") + qs;
+  chrome.tabs.create({ url });
+}

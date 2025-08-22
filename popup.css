@@ -386,3 +386,144 @@ kbd.shortcut-keys {
   cursor: default;
   opacity: 0.85;
 }
+
+/* --- Support section container --- */
+.support {
+  padding: 0 12px 12px 12px;
+}
+
+/* Inherit typography/colors for form controls */
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  line-height: inherit;
+  color: inherit;
+}
+
+/* Label-like clickable CTA: "Find CodeTint useful?" */
+.label-cta {
+  appearance: none;
+  -webkit-appearance: none;
+  background: none;
+  border: 0;
+  width: 100%;
+  text-align: left;
+  display: block;
+  margin: 10px 0 6px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.45;
+  color: #1f2937; /* use var(--text) if you prefer theme-aware */
+  padding: 0;
+  cursor: pointer;
+}
+.label-cta:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Inline support row (question + buttons) */
+#support-inline {
+  color: var(--muted, #6b7280);
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px; /* spacing between Yes/No */
+}
+#support-inline .label {
+  margin-right: auto; /* push buttons to the right */
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* --- Buttons inside the support row --- */
+
+/* Base button look */
+#support-inline button,
+#support-inline .primary,
+#support-inline .secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font: inherit;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 8px;
+  transition: transform 80ms ease, box-shadow 120ms ease, background 120ms ease,
+    border-color 120ms ease;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
+  height: 30px;
+}
+
+/* Small buttons (Yes / No) */
+#support-inline .sm {
+  padding: 6px 12px;
+  min-width: 56px; /* tweak 60–64px if you want wider */
+  font-size: 12px;
+  text-align: center;
+}
+
+/* Primary (Yes / Sponsor) */
+#support-inline .primary {
+  background: var(--accent);
+  color: #fff;
+  border: 1px solid var(--accent);
+}
+#support-inline .primary:hover {
+  background: color-mix(in srgb, var(--accent) 88%, #ffffff);
+  border-color: color-mix(in srgb, var(--accent) 88%, #ffffff);
+}
+#support-inline .primary:active {
+  transform: translateY(0.5px);
+}
+#support-inline .primary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Secondary (No / BMC) */
+#support-inline .secondary {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+#support-inline .secondary:hover {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 25%, var(--border));
+}
+#support-inline .secondary:active {
+  transform: translateY(0.5px);
+}
+#support-inline .secondary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Final single-CTA buttons width */
+#support-inline #go-sponsor,
+#support-inline #go-bmac {
+  padding: 8px 12px; /* a bit larger than .sm */
+  min-width: 190px; /* avoid wrapping; adjust as needed */
+}
+
+/* Optional tiny icons (remove if not needed) */
+#support-inline #go-sponsor::before {
+  content: "★";
+  font-size: 12px;
+  opacity: 0.9;
+}
+#support-inline #go-bmac::before {
+  content: "☕";
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+#support-inline #go-sponsor,
+#support-inline #go-bmac {
+  width: 100%;
+  min-width: 0; /* override previous 190px */
+  box-sizing: border-box;
+}
