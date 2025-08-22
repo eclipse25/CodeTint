@@ -18,7 +18,8 @@
     "clipboardRead",
     "clipboardWrite",
     "scripting",
-    "activeTab"
+    "activeTab",
+    "notifications"
   ],
   "host_permissions": ["<all_urls>"],
   "background": { "service_worker": "sw.js", "type": "module" },

@@ -363,7 +363,7 @@ async function renderHistory() {
 
   // Build chips
   for (const c of history) {
-    // history에 {hex,r,g,b,a}가 이미 저장됨. 혹시 몰라 hex만 있을 경우 보완
+    // The history array already stores {hex,r,g,b,a}. As a safeguard, recover from hex-only entries.
     const color = typeof c?.r === "number" ? c : sample(c?.hex || "#000000");
 
     const btn = document.createElement("button");
@@ -397,3 +397,20 @@ async function renderHistory() {
     wrap.appendChild(btn);
   }
 }
+
+(async function () {
+  const key = "codetint_blocked";
+  const { [key]: info } = await chrome.storage.session.get(key);
+  if (info?.message) {
+    const el = document.getElementById("blockedBanner");
+    if (el) {
+      el.textContent = info.message;
+      el.style.display = "block";
+      // Auto-hide after 2.5 seconds
+      setTimeout(() => (el.style.display = "none"), 5000);
+    }
+    // Since it was shown, clean up the flag and reset the badge
+    await chrome.storage.session.remove(key);
+    chrome.action.setBadgeText({ text: "" });
+  }
+})();
