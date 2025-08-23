@@ -6,6 +6,11 @@
   --muted: #9ca3af; /* gray-400 */
   --accent: #6366f1; /* indigo-500 */
   --border: #1f2937; /* gray-800 */
+  --heading: #ffffff;
+  --label: #e5e7eb;
+  --muted-strong: #878e95;
+  --link: color-mix(in srgb, var(--accent) 76%, #ffffff);
+  --link-hover: color-mix(in srgb, var(--accent) 90%, #ffffff);
 }
 
 @media (prefers-color-scheme: light) {
@@ -17,6 +22,11 @@
     --muted: #475569; /* slate-600 */
     --accent: #4f46e5; /* indigo-600 */
     --border: #e5e7eb; /* gray-200 */
+    --heading: #0f172a;
+    --label: #1f2937;
+    --muted-strong: #475569;
+    --link: color-mix(in srgb, var(--accent) 84%, #000000);
+    --link-hover: color-mix(in srgb, var(--accent) 92%, #000000);
   }
 }
 
@@ -48,7 +58,7 @@ h3 {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #1f2937;
+  color: var(--heading);
 }
 
 /* Gradient text badge */
@@ -65,7 +75,7 @@ label {
   margin: 10px 0 6px;
   font-size: 13px;
   font-weight: 500;
-  color: #1f2937;
+  color: var(--label);
 }
 
 /* Dropdown (shared styles for native select + custom trigger) */
@@ -199,7 +209,7 @@ label + .select-group {
   margin: 16px 0 8px 0;
   font-size: 13px;
   font-weight: 500;
-  color: #1f2937;
+  color: var(--label);
 }
 
 /* Grid row for swatch + preview text */
@@ -232,7 +242,7 @@ label + .select-group {
 
 /* Link-style button (used for Copy/Change) */
 .link {
-  color: #0161a7;
+  color: var(--link);
   background: none;
   border: 0;
   cursor: pointer;
@@ -241,7 +251,15 @@ label + .select-group {
   text-decoration: none;
 }
 .link:hover {
-  color: #0d246a;
+  color: var(--link-hover);
+}
+.link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  text-decoration: underline;
+}
+.link:active {
+  opacity: 0.95;
 }
 
 /* Option: two lines (label/description) */
@@ -279,7 +297,7 @@ label + .select-group {
 }
 
 .shortcut-label {
-  color: var(--muted, #6b7280);
+  color: var(--muted-strong);
   font-size: 12px;
 }
 
@@ -389,7 +407,8 @@ kbd.shortcut-keys {
 
 /* --- Support section container --- */
 .support {
-  padding: 0 12px 12px 12px;
+  margin-top: 16px;
+  background: var(--bg);
 }
 
 /* Inherit typography/colors for form controls */
@@ -415,7 +434,7 @@ textarea {
   font-size: 13px;
   font-weight: 500;
   line-height: 1.45;
-  color: #1f2937; /* use var(--text) if you prefer theme-aware */
+  color: var(--label);
   padding: 0;
   cursor: pointer;
 }

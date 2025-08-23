@@ -2,6 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="color-scheme" content="dark light" />
     <title>CodeTint</title>
     <link rel="stylesheet" href="popup.css" />
   </head>
@@ -109,40 +110,39 @@
         class="shortcuts-list"
         aria-live="polite"
       ></div>
-    </div>
 
-    <div
-      id="blockedBanner"
-      style="
-        display: none;
-        background: #fff3cd;
-        color: #7c4a03;
-        border: 1px solid #ffe69c;
-        padding: 8px 10px;
-        border-radius: 8px;
-        margin: 0 0 10px 0;
-        font-size: 12px;
-      "
-    ></div>
-
-    <div class="support">
-      <button
-        id="support-cta"
-        class="label-cta"
-        type="button"
-        aria-controls="support-inline"
-        aria-expanded="false"
-      >
-        Find CodeTint useful?
-      </button>
       <div
-        id="support-inline"
-        class="inline hidden"
-        role="group"
-        aria-label="Support choices"
+        id="blockedBanner"
+        style="
+          display: none;
+          background: #fff3cd;
+          color: #7c4a03;
+          border: 1px solid #ffe69c;
+          padding: 8px 10px;
+          border-radius: 8px;
+          margin: 0 0 10px 0;
+          font-size: 12px;
+        "
       ></div>
-    </div>
 
+      <div class="support">
+        <button
+          id="support-cta"
+          class="label-cta"
+          type="button"
+          aria-controls="support-inline"
+          aria-expanded="false"
+        >
+          Find CodeTint useful?
+        </button>
+        <div
+          id="support-inline"
+          class="inline hidden"
+          role="group"
+          aria-label="Support choices"
+        ></div>
+      </div>
+    </div>
     <script type="module" src="popup.js"></script>
   </body>
 </html>
