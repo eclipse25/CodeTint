@@ -1,34 +1,18 @@
 {
   "manifest_version": 3,
   "name": "CodeTint",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Pick, copy, and convert colors to CSS, Tailwind, Android XML, iOS, and Flutter.",
   "action": {
     "default_popup": "popup.html",
-    "default_icon": {
-      "128": "icons/codetint_icon_128.png"
-    }
+    "default_icon": { "128": "icons/codetint_icon_128.png" }
   },
-  "icons": {
-    "128": "icons/codetint_icon_128.png"
-  },
-  "permissions": [
-    "storage",
-    "offscreen",
-    "clipboardRead",
-    "clipboardWrite",
-    "scripting",
-    "activeTab",
-    "notifications"
-  ],
-  "host_permissions": ["<all_urls>"],
+  "icons": { "128": "icons/codetint_icon_128.png" },
+  "permissions": ["storage", "scripting", "activeTab", "clipboardWrite"],
   "background": { "service_worker": "sw.js", "type": "module" },
   "commands": {
     "_execute_action": {
-      "suggested_key": {
-        "default": "Alt+X",
-        "mac": "Alt+X"
-      },
+      "suggested_key": { "default": "Alt+X", "mac": "Alt+X" },
       "description": "Open CodeTint popup"
     },
     "pick-screen-color": {
@@ -37,15 +21,9 @@
     },
     "convert-color-format": {
       "suggested_key": { "default": "Alt+D" },
-      "description": "Convert clipboard color format"
+      "description": "Open converter overlay"
     }
   },
-  "content_scripts": [
-    {
-      "matches": ["<all_urls>"],
-      "js": ["content.js"]
-    }
-  ],
   "web_accessible_resources": [
     {
       "resources": ["lib/color.js"],

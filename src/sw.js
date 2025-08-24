@@ -64,18 +64,7 @@ async function notifyBlocked({ cmd, url, tabId }) {
     await chrome.action.openPopup();
   } catch {}
 
-  // 3) Optional: system notification (requires "notifications" permission)
-  try {
-    await chrome.notifications.create({
-      type: "basic",
-      iconUrl: "icons/icon128.png",
-      title: "CodeTint",
-      message,
-      priority: 1,
-    });
-  } catch {}
-
-  // 4) Show tab-scoped badge briefly, then clear
+  // 3) Show tab-scoped badge briefly, then clear
   setBadgeWarning(true, tabId);
   clearBadgeSoon(tabId, 2500);
 }
@@ -117,6 +106,8 @@ chrome.commands.onCommand.addListener(async (cmd) => {
   // Clear any badge when we’re about to run successfully
   setBadgeWarning(false, tab.id);
 
+  await ensureInjected(tab.id);
+
   // Quietly log shortcut trigger (no-op if content script isn't present)
   await safeSendMessage(tab.id, { action: "debug-shortcut-log", payload });
 
@@ -126,44 +117,13 @@ chrome.commands.onCommand.addListener(async (cmd) => {
   }
 
   if (cmd === "convert-color-format") {
-    let text = "";
-    try {
-      const resp = await readClipboardFromOffscreen();
-      text = resp?.text || "";
-    } catch (e) {
-      console.debug("[CodeTint] offscreen read failed:", e);
-    }
     await safeSendMessage(tab.id, {
       action: "convert-color-format",
-      text,
+      text: "",
       payload,
     });
   }
 });
-
-// ----- Offscreen helpers -----
-async function ensureOffscreen() {
-  if (!chrome.offscreen) return;
-  try {
-    if (chrome.offscreen.hasDocument) {
-      if (await chrome.offscreen.hasDocument()) return;
-    }
-    await chrome.offscreen.createDocument({
-      url: chrome.runtime.getURL("offscreen.html"),
-      reasons: ["CLIPBOARD"],
-      justification: "Read clipboard to convert color format via Alt+D",
-    });
-  } catch (e) {
-    console.debug("[CodeTint] ensureOffscreen failed:", e);
-  }
-}
-
-async function readClipboardFromOffscreen() {
-  await ensureOffscreen();
-  return new Promise((resolve) => {
-    chrome.runtime.sendMessage({ type: "read-clipboard" }, resolve);
-  });
-}
 
 /** Send message and swallow runtime.lastError noise. */
 function safeSendMessage(tabId, message) {
@@ -177,4 +137,14 @@ function safeSendMessage(tabId, message) {
       resolve();
     }
   });
+}
+
+async function ensureInjected(tabId) {
+  try {
+    await chrome.scripting.executeScript({
+      target: { tabId },
+      files: ["content.js"],
+      world: "ISOLATED",
+    });
+  } catch {}
 }
