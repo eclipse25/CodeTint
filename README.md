@@ -3,6 +3,11 @@
 **Pick colors. Paste code.**  
 A tiny Chrome extension to grab any on-screen color and copy it in your favorite format.
 
+<p align="center">
+  <img src="assets/1.png" width="45%" alt="CodeTint banner" />
+  <img src="assets/2.png"  width="47.9%" alt="CodeTint UI" />
+</p>
+
 ## ✨ Features
 - 🧪 Eyedropper anywhere on the page
 - ⚡ One-click copy in multiple formats:
@@ -20,7 +25,7 @@ A tiny Chrome extension to grab any on-screen color and copy it in your favorite
 1. Clone this repo  
 2. Open `chrome://extensions`  
 3. Enable **Developer mode**  
-4. **Load unpacked** → select the repo folder
+4. **Load unpacked** → select the repo folder `/src`
 
 > MV3 — no build step needed.
 
